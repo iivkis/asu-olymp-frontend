@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    background-color: #efefef;
+}
+
+.btn-red {
+    @apply py-2 px-10;
+    @apply bg-red-500 text-white rounded-md text-xl;
+    @apply hover:bg-red-600 hover:text-gray-50;
+}
