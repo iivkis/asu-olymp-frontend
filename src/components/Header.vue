@@ -1,8 +1,8 @@
 <template>
 	<div class="header">
-		<div class="wrap">
+		<div class="header__wrap">
 			<div class="header__logo">
-				<span><Logo /></span><span>OLYMP</span>
+				<logo />
 			</div>
 			<div class="header__nav nav">
 				<div class="nav__item nav__item-active">тестирование</div>
@@ -13,7 +13,7 @@
 </template>
 
 <script>
-	import Logo from "../assets/Logo.svg";
+	import Logo from "../components/Logo.vue";
 
 	export default {
 		name: "Header",
@@ -26,13 +26,13 @@
 		@apply w-full flex justify-center;
 		@apply bg-white shadow-md;
 
-		.wrap {
+		&__wrap {
 			@apply flex justify-between;
-			@apply w-screen md:w-4/5 lg:w-3/5;
+			@apply w-screen md:w-4/5 lg:w-1/2;
 		}
 
 		&__logo {
-			@apply flex items-center text-4xl text-gray-700 font-medium;
+			@apply flex items-center;
 		}
 
 		&__nav {
@@ -43,7 +43,7 @@
 	.nav {
 		&__item {
 			@apply h-full flex items-center;
-			@apply p-4 cursor-pointer border-b-4 border-transparent;
+			@apply px-5 py-3 cursor-pointer border-b-4 border-transparent;
 			@apply text-xl tracking-tight;
 
 			@apply hover:bg-slate-100;

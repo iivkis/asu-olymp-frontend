@@ -3,15 +3,24 @@
 	<div class="flex justify-center">
 		<div class="tasks_list">
 			<div class="list__item" v-for="(task, index) in tasks" :key="index">
-				<div class="list_item__title">
-					<h4>{{ task.title }}</h4>
-				</div>
-				<div class="list_item__content">
-					<p>{{ task.content }}</p>
-				</div>
+				<router-link :to="`/tasks/${task.id}`">
+					<div class="list_item__title">
+						<h4>
+							{{ task.title }}
+						</h4>
+					</div>
+					<div class="list_item__content">
+						<p>
+							{{ task.content }}
+						</p>
+					</div>
+				</router-link>
 				<div class="list_item__footer">
 					<div>
-						Автор: <a href="">{{ task.author_name }}</a>
+						Автор:
+						<router-link :to="`/profile/${task.author_id}`">
+							{{ task.author_name }}
+						</router-link>
 					</div>
 					<div>
 						Решений: <span>{{ task.solutions_count }}</span>
@@ -34,7 +43,7 @@
 				tasks: [
 					{
 						title: "",
-						content: "",
+						content: "Hi",
 						author_id: 0,
 						author_name: "",
 						solutions_count: 0,
@@ -59,9 +68,9 @@
 		@apply w-full md:w-4/5 lg:w-1/2;
 
 		.list__item {
-			@apply w-full p-4 my-3;
+			@apply w-full p-5 my-2.5;
 			@apply shadow-md transition-shadow bg-white rounded;
-			@apply hover:shadow-xl hover:cursor-pointer;
+			@apply hover:shadow-xl;
 		}
 
 		.list_item {
