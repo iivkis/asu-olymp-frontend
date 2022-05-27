@@ -1,6 +1,11 @@
 <template>
 	<Header />
-	<div class="flex justify-center">
+	<div class="flex flex-wrap justify-center pt-5">
+		<div class="w-full flex justify-center" v-if="!$store.state.ApiKey">
+			<banner-auth />
+		</div>
+
+		<!-- taskList -->
 		<div class="tasks_list">
 			<div class="list__item" v-for="(task, index) in tasks" :key="index">
 				<router-link :to="`/tasks/${task.id}`">
@@ -28,16 +33,18 @@
 				</div>
 			</div>
 		</div>
+		<!-- /taskList -->
 	</div>
 </template>
 
 <script>
 	import client from "../client";
 	import Header from "../components/Header.vue";
+	import BannerAuth from "../components/BannerAuth.vue";
 
 	export default {
-		name: "Tasks",
-		components: { Header },
+		name: "Home",
+		components: { Header, BannerAuth },
 		data() {
 			return {
 				tasks: [

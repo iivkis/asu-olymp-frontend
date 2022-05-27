@@ -1,5 +1,9 @@
 <template>
 	<Header />
+	<div class="w-full flex justify-center my-5" v-if="!$store.state.ApiKey">
+		<banner-auth />
+	</div>
+
 	<div class="task_wrap">
 		<div class="task_block">
 			<div class="task_block__title">
@@ -23,13 +27,17 @@
 		<hr />
 		<div class="questions_block">
 			<div
-				class="question"
 				v-for="(question, index) in questions"
+				class="question"
+				:class="
+					question.isCorrect ? `question-${question.isCorrect}` : ''
+				"
 				:key="index"
 			>
 				<div class="question__text">{{ question.text }}</div>
 				<div class="question__input">
 					<input
+						:disabled="disableInputs"
 						type="text"
 						placeholder="Ваш ответ"
 						v-model.lazy.trim="question.input"
@@ -49,13 +57,16 @@
 <script>
 	import client from "../client";
 	import Header from "../components/Header.vue";
+	import BannerAuth from "../components/BannerAuth.vue";
 
 	export default {
 		name: "Task",
-		components: { Header },
+		components: { Header, BannerAuth },
 
 		data() {
 			return {
+				disableInputs: false,
+
 				task: {
 					title: "loading...",
 					content: "loading...",
@@ -64,7 +75,9 @@
 					solutions_count: 0,
 				},
 
-				questions: [{ id: 0, text: "loading...", input: "" }],
+				questions: [
+					{ id: 0, text: "loading...", input: "", isCorrect: "" },
+				],
 			};
 		},
 
@@ -118,7 +131,42 @@
 			},
 
 			async BtnCheck() {
-				this.ClearCacheAnswers();
+				const { apis } = await client;
+
+				let answers = [];
+
+				this.$data.questions.forEach((question) => {
+					answers.push({
+						question_id: question.id,
+						value: question.input,
+					});
+				});
+
+				let data;
+				try {
+					let { body } = await apis.checking.CheckingAnswers({
+						body: {
+							task_id: Number(this.$route.params.id),
+							answers,
+						},
+					});
+					data = body.data;
+					this.ClearCacheAnswers();
+				} catch (e) {
+					this.$store.dispatch("NotifyErr", {
+						text: e.response.body.data.description,
+					});
+					return;
+				}
+
+				this.$data.disableInputs = true;
+				this.$data.questions.forEach((question) => {
+					if (data.show_correct) {
+						question.isCorrect = String(data.results[question.id]);
+					} else {
+						question.isCorrect = "checked";
+					}
+				});
 			},
 
 			async CacheAnswers() {
@@ -175,10 +223,10 @@
 		}
 
 		.questions_block {
-			@apply flex flex-col px-5 pt-5 bg-white;
+			@apply flex flex-col bg-white;
 
 			.question {
-				@apply flex flex-wrap my-3;
+				@apply flex flex-wrap py-4 px-5 border-x-4 border-transparent;
 
 				&__text {
 					@apply basis-full text-xl tracking-tight;
@@ -190,6 +238,27 @@
 					input {
 						@apply w-full text-lg tracking-tight mt-3;
 						@apply bg-slate-100 p-2.5 border-2 focus:outline-blue-400;
+					}
+				}
+
+				&-true {
+					@apply bg-green-200 border-green-400;
+					input {
+						@apply bg-white border-transparent;
+					}
+				}
+
+				&-false {
+					@apply bg-red-200 border-red-400;
+					input {
+						@apply bg-white border-transparent;
+					}
+				}
+
+				&-checked {
+					@apply bg-slate-200 border-slate-400;
+					input {
+						@apply bg-white border-transparent;
 					}
 				}
 			}

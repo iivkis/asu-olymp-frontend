@@ -12,8 +12,21 @@ body {
     @apply hover:bg-red-600 hover:text-gray-50;
 }
 
+.btn-red-mini {
+    @apply py-2 px-6;
+    @apply bg-red-500 text-white rounded-md text-base;
+    @apply hover:bg-red-600 hover:text-gray-50;
+}
+
+
 .btn-blue {
     @apply py-2 px-10;
     @apply bg-blue-500 text-white rounded-md text-xl;
+    @apply hover:bg-blue-600 hover:text-gray-50;
+}
+
+.btn-blue-mini {
+    @apply py-2 px-6;
+    @apply bg-blue-500 text-white rounded-md text-base;
     @apply hover:bg-blue-600 hover:text-gray-50;
 }
