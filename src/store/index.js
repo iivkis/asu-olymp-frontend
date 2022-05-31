@@ -1,4 +1,5 @@
 import { createStore } from 'vuex'
+import client from '../client';
 
 function loadAnswersInputCache() {
     const livetime = 2 * 24 * 60 * 60 * 1000; //жизнь кеша 2 дня в миллисекундах
@@ -19,8 +20,9 @@ function loadAnswersInputCache() {
 }
 
 // Create a new store instance.
-const store = createStore({
+var store = createStore({
     state: {
+        Client: null,
         ApiKey: null,
         Notifies: [],
         AnswersInputCache: loadAnswersInputCache(),
@@ -40,7 +42,7 @@ const store = createStore({
         },
         RemoveFromAnswersCache(state, { question_id }) {
             return delete state.AnswersInputCache[question_id]
-        }
+        },
     },
     actions: {
         NotifyErr({ commit }, { text }) {
@@ -56,8 +58,17 @@ const store = createStore({
         RemoveFromAnswerCache({ commit }, { question_id }) {
             commit('RemoveFromAnswersCache', { question_id })
             localStorage.setItem('answers_cache', JSON.stringify(this.state.AnswersInputCache))
-        }
+        },
+        SetApiKey({ commit }, { token }) {
+            commit('SetApiKey', { token })
+            client.defaults.headers['Authorization'] = token
+        },
+        RemoveApiKey({ commit }) {
+            commit('SetApiKey', { token: null })
+            delete client.defaults.headers['Authorization']
+        },
     }
 })
+
 
 export default store;

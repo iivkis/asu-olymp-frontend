@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^0.27.2",
     "sass": "^1.52.1",
     "scss": "^0.2.4",
     "swagger-client": "^3.18.5",

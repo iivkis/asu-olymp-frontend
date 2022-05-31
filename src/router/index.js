@@ -1,26 +1,32 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-import HomeComponent from '../views/Home.vue'
-import AuthComponent from '../views/Auth.vue'
-import TaskComponent from '../views/Task.vue'
+import HomeView from '../views/Home.vue'
+import AuthView from '../views/Auth.vue'
+import TaskView from '../views/Task.vue'
+import EditorView from '../views/Editor.vue'
 
 const routes = [
     {
         path: "/",
         name: "home",
-        component: HomeComponent,
+        component: HomeView,
     },
 
     {
         path: "/auth",
         name: "auth",
-        component: AuthComponent,
+        component: AuthView,
     },
 
     {
         path: "/tasks/:id",
         name: "task",
-        component: TaskComponent
+        component: TaskView
+    },
+    {
+        path: "/editor/:id",
+        name: "editor",
+        component: EditorView,
     }
 ]
 

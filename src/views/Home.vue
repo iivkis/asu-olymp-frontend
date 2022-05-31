@@ -1,26 +1,30 @@
 <template>
 	<Header />
-	<div class="flex flex-wrap justify-center pt-5">
-		<div class="w-full flex justify-center" v-if="!$store.state.ApiKey">
+	<div class="content_wrap">
+		<div v-if="!$store.state.ApiKey">
 			<banner-auth />
 		</div>
 
 		<!-- taskList -->
 		<div class="tasks_list">
-			<div class="list__item" v-for="(task, index) in tasks" :key="index">
+			<div
+				class="task_list__item"
+				v-for="(task, index) in tasks"
+				:key="index"
+			>
 				<router-link :to="`/tasks/${task.id}`">
-					<div class="list_item__title">
+					<div class="task_list_item__title">
 						<h4>
 							{{ task.title }}
 						</h4>
 					</div>
-					<div class="list_item__content">
+					<div class="task_list_item__content">
 						<p>
-							{{ task.content }}
+							{{ task.content.slice(0, 200) }}
 						</p>
 					</div>
 				</router-link>
-				<div class="list_item__footer">
+				<div class="task_list_item__footer">
 					<div>
 						Автор:
 						<router-link :to="`/profile/${task.author_id}`">
@@ -38,9 +42,9 @@
 </template>
 
 <script>
-	import client from "../client";
 	import Header from "../components/Header.vue";
 	import BannerAuth from "../components/BannerAuth.vue";
+	import client from "../client";
 
 	export default {
 		name: "Home",
@@ -49,38 +53,54 @@
 			return {
 				tasks: [
 					{
-						title: "",
-						content: "Hi",
+						title: "loading...",
+						content: "loading...",
 						author_id: 0,
-						author_name: "",
+						author_name: "loading...",
 						solutions_count: 0,
 					},
 				],
 			};
 		},
 
-		mounted() {
-			client.then(({ apis }) => {
-				apis.tasks.GetTasks().then((res) => {
-					this.$data.tasks = res.body.data;
-				});
-			});
+		async mounted() {
+			await this.LoadTasks();
+		},
+
+		methods: {
+			async LoadTasks() {
+				try {
+					const { data } = await client({
+						url: "/t/tasks",
+						method: "get",
+					});
+
+					const maxlen = 200;
+					data.data.forEach((task) => {
+						if (task.content.length > maxlen)
+							task.content = task.content.slice(0, maxlen) + "...";
+					});
+					this.$data.tasks = data.data;
+				} catch (e) {
+					console.log(e);
+				}
+			},
 		},
 	};
 </script>
 
 <style scoped lang="scss">
 	.tasks_list {
-		@apply flex flex-wrap py-2;
-		@apply w-full md:w-4/5 lg:w-1/2;
+		@apply flex flex-col py-2;
 
-		.list__item {
-			@apply w-full p-5 my-2.5;
-			@apply shadow-md transition-shadow bg-white rounded;
+		.task_list__item {
+			@apply p-5 sm:my-2 transition-all;
+			@apply shadow-md bg-white sm:rounded;
 			@apply hover:shadow-xl;
+			@apply border-b-2 sm:border-none;
 		}
 
-		.list_item {
+		.task_list_item {
 			&__title {
 				h4 {
 					@apply text-xl sm:text-2xl font-medium;

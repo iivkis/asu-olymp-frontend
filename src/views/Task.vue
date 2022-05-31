@@ -1,63 +1,69 @@
 <template>
 	<Header />
-	<div class="w-full flex justify-center my-5" v-if="!$store.state.ApiKey">
-		<banner-auth />
-	</div>
+	<div class="content_wrap">
+		<div v-if="!$store.state.ApiKey">
+			<banner-auth />
+		</div>
 
-	<div class="task_wrap">
-		<div class="task_block">
-			<div class="task_block__title">
-				<h2>{{ task.title }}</h2>
-			</div>
-			<div class="task_block__content">
-				<p>{{ task.content }}</p>
-			</div>
-			<div class="task_block__footer">
-				<div>
-					Автор:
-					<router-link :to="`/profile/${task.author_id}`">
-						{{ task.author_name }}
-					</router-link>
+		<div class="task_wrap">
+			<div class="task_block">
+				<div class="task_block__title">
+					<h2>{{ task.title }}</h2>
 				</div>
-				<div>
-					Решений: <span>{{ task.solutions_count }}</span>
+				<div class="task_block__content">
+					<pre>{{ task.content }}</pre>
 				</div>
-			</div>
-		</div>
-		<hr />
-		<div class="questions_block">
-			<div
-				v-for="(question, index) in questions"
-				class="question"
-				:class="
-					question.isCorrect ? `question-${question.isCorrect}` : ''
-				"
-				:key="index"
-			>
-				<div class="question__text">{{ question.text }}</div>
-				<div class="question__input">
-					<input
-						:disabled="disableInputs"
-						type="text"
-						placeholder="Ваш ответ"
-						v-model.lazy.trim="question.input"
-						@change="CacheAnswers"
-					/>
+				<div class="task_block__footer">
+					<div>
+						Автор:
+						<router-link :to="`/profile/${task.author_id}`">
+							{{ task.author_name }}
+						</router-link>
+					</div>
+					<div>
+						Решений: <span>{{ task.solutions_count }}</span>
+					</div>
 				</div>
 			</div>
-		</div>
-		<div class="task_footer">
-			<button class="btn-blue p-3 w-full" @click="BtnCheck">
-				Проверить
-			</button>
+			<hr />
+			<div class="questions_block">
+				<div
+					v-for="(question, index) in questions"
+					class="question"
+					:class="
+						question.isCorrect
+							? `question-${question.isCorrect}`
+							: ''
+					"
+					:key="index"
+				>
+					<div class="question__text">
+						<pre>{{ question.text }}</pre>
+					</div>
+					<div class="question__input">
+						<input
+							:disabled="disableInputs"
+							type="text"
+							placeholder="Ваш ответ"
+							v-model.lazy.trim="question.input"
+							@change="CacheAnswers"
+						/>
+					</div>
+				</div>
+			</div>
+			<div class="task_footer">
+				<button class="btn-blue p-3 w-full" @click="BtnCheck">
+					Проверить
+				</button>
+			</div>
 		</div>
 	</div>
 </template>
 
 <script>
-	import client from "../client";
 	import Header from "../components/Header.vue";
 	import BannerAuth from "../components/BannerAuth.vue";
+	import client from "../client";
 
 	export default {
 		name: "Task",
@@ -94,14 +100,15 @@
 
 		methods: {
 			async LoadTask() {
-				const { apis } = await client;
+				// const { apis } = await this.$store.state.Client;
 				try {
-					const { body } = await apis.tasks.GetOneTask({
-						id: this.$route.params.id,
+					const { data } = await client({
+						url: `/t/tasks/${this.$route.params.id}`,
+						methods: "get",
 					});
-					this.$data.task = body.data;
+					this.$data.task = data.data;
 				} catch (e) {
-					switch (e.response.body.data.code) {
+					switch (e.response.data.data.code) {
 						case 1:
 							this.$store.dispatch("NotifyErr", {
 								text: "Увы, задача не найдена",
@@ -110,29 +117,29 @@
 							break;
 						default:
 							this.$store.dispatch("NotifyErr", {
-								text: e.response.body.data.description,
+								text: e.response.data.data.description,
 							});
 					}
 				}
 			},
 
 			async LoadQuestions() {
-				const { apis } = await client;
 				try {
-					const { body } = await apis.questions.GetQuestions({
-						task_id: this.$route.params.id,
+					const { data } = await client({
+						url: "/t/questions",
+						params: {
+							task_id: this.$route.params.id,
+						},
 					});
-					this.$data.questions = body.data;
+					this.$data.questions = data.data;
 				} catch (e) {
 					this.$store.dispatch("NotifyErr", {
-						text: e.response.body.data.description,
+						text: e.response.data.data.description,
 					});
 				}
 			},
 
 			async BtnCheck() {
-				const { apis } = await client;
-
 				let answers = [];
 
 				this.$data.questions.forEach((question) => {
@@ -142,27 +149,29 @@
 					});
 				});
 
-				let data;
+				let dt;
 				try {
-					let { body } = await apis.checking.CheckingAnswers({
-						body: {
+					let { data } = await client({
+						url: "/t/check",
+						method: "post",
+						data: {
 							task_id: Number(this.$route.params.id),
 							answers,
 						},
 					});
-					data = body.data;
+					dt = data.data;
 					this.ClearCacheAnswers();
 				} catch (e) {
 					this.$store.dispatch("NotifyErr", {
-						text: e.response.body.data.description,
+						text: e.response.data.data.description,
 					});
 					return;
 				}
 
 				this.$data.disableInputs = true;
 				this.$data.questions.forEach((question) => {
-					if (data.show_correct) {
-						question.isCorrect = String(data.results[question.id]);
+					if (dt.show_correct) {
+						question.isCorrect = String(dt.results[question.id]);
 					} else {
 						question.isCorrect = "checked";
 					}
@@ -196,17 +205,15 @@
 
 <style scoped lang="scss">
 	.task_wrap {
-		@apply w-3/4 lg:w-1/2 mx-auto my-10 flex justify-center flex-col;
-
 		.task_block {
-			@apply flex flex-col bg-white p-5;
+			@apply flex flex-col bg-white p-5 mt-5;
 
 			&__title {
 				@apply text-2xl font-medium;
 			}
 
 			&__content {
-				@apply py-4 text-lg tracking-tight;
+				@apply py-4 text-lg whitespace-pre-wrap;
 			}
 
 			&__footer {
@@ -229,7 +236,9 @@
 				@apply flex flex-wrap py-4 px-5 border-x-4 border-transparent;
 
 				&__text {
-					@apply basis-full text-xl tracking-tight;
+					pre {
+						@apply basis-full text-xl whitespace-pre-wrap;
+					}
 				}
 
 				&__input {

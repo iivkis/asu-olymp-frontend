@@ -6,6 +6,7 @@ body {
     background-color: #efefef;
 }
 
+
 .btn-red {
     @apply py-2 px-10;
     @apply bg-red-500 text-white rounded-md text-xl;
@@ -13,8 +14,8 @@ body {
 }
 
 .btn-red-mini {
-    @apply py-2 px-6;
-    @apply bg-red-500 text-white rounded-md text-base;
+    @apply py-2 px-3 sm:py-2 sm:px-5;
+    @apply bg-red-500 text-white rounded-md text-sm;
     @apply hover:bg-red-600 hover:text-gray-50;
 }
 
@@ -26,7 +27,16 @@ body {
 }
 
 .btn-blue-mini {
-    @apply py-2 px-6;
-    @apply bg-blue-500 text-white rounded-md text-base;
+    @apply py-2 px-3 sm:py-2 sm:px-5;
+    @apply bg-blue-500 text-white rounded-md text-sm;
     @apply hover:bg-blue-600 hover:text-gray-50;
+}
+
+.btn-link {
+    @apply p-2 text-blue-500 underline-offset-2;
+    @apply hover:text-blue-600 hover:underline;
+}
+
+.content_wrap {
+	@apply w-full sm:w-3/4 lg:w-1/2 my-5 mx-auto flex flex-col;
 }

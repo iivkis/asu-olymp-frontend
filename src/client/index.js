@@ -1,7 +1,9 @@
-import SwaggerClient from 'swagger-client'
+import axios from 'axios'
 
-const client = new SwaggerClient({
-    url: "http://localhost:8081/swagger/doc.json"
-})
+const client = axios;
+
+
+client.defaults.baseURL = "http://localhost:8081/api/v1";
+// client.defaults.withCredentials = true;
 
 export default client;

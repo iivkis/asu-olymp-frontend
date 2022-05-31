@@ -8,7 +8,7 @@
 				Решай задчи, прокачивай свой мозг и соревнуйся с другими за
 				место в рейтинге!
 			</h3>
-			<div class="p-3 flex justify-center items-center">
+			<div class="py-5">
 				<router-link class="btn-red-mini" to="/auth">
 					Войти
 				</router-link>
@@ -36,10 +36,10 @@
 
 <style scoped lang="scss">
 	.banner_auth {
-		@apply w-4/5 lg:w-1/2 flex justify-between bg-white p-4 shadow-md rounded-md;
+		@apply flex justify-between bg-white p-4 shadow-md sm:rounded-md;
 
 		&__img {
-			@apply flex basis-1/5 items-center;
+			@apply flex basis-2/5 lg:basis-1/5 items-center;
 
 			img {
 				@apply w-20;
@@ -47,9 +47,10 @@
 		}
 
 		&__content {
-			@apply flex flex-col;
+			@apply flex flex-col pl-5;
 			h3 {
-				@apply text-lg font-medium tracking-tight;
+				@apply font-medium tracking-tighter;
+				@apply sm:text-lg;
 			}
 		}
 	}

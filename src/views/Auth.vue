@@ -79,8 +79,8 @@
 </template>
 
 <script>
-	import Logo from "../components/Logo.vue";
 	import client from "../client";
+	import Logo from "../components/Logo.vue";
 
 	export default {
 		name: "Auth",
@@ -107,24 +107,25 @@
 					});
 					return;
 				}
-				const { apis } = await client;
 
 				try {
-					const { body } = await apis.auth.SignIn({
-						body: {
+					const { data } = await client({
+						url: "/signIn",
+						method: "post",
+						data: {
 							email: this.$data.email,
 							password: this.$data.password,
 						},
+						withCredentials: true,
 					});
 
-					this.$store.commit("SetApiKey", { token: body.data.token });
+					this.$store.dispatch("SetApiKey", { token: data.data.token });
 					this.$store.dispatch("NotifyInfo", {
 						text: "Авторизация прошла успешно",
 					});
 					this.$router.push({ name: "home" });
-					console.log(body.data.token);
 				} catch (e) {
-					switch (e.response.body.data.code) {
+					switch (e.response.data.data.code) {
 						case 2:
 							this.$store.dispatch("NotifyErr", {
 								text: "Неверный е-мейл или пароль. Пожалуйста, убедитесь в коррекности введенных данных.",
@@ -132,7 +133,7 @@
 							break;
 						default:
 							this.$store.dispatch("NotifyErr", {
-								text: e.response.body.data.description,
+								text: e.response.data.data.description,
 							});
 					}
 				}
@@ -144,16 +145,16 @@
 					this.$data.email == "" ||
 					this.$data.password == ""
 				) {
-					this.$store.dispatch("NotifyErr", {
+					return this.$store.dispatch("NotifyErr", {
 						text: "Все поля должны быть заполнены!",
 					});
-					return;
 				}
 
-				const { apis } = await client;
 				try {
-					await apis.auth.SignUp({
-						body: {
+					await client({
+						url: "/signUp",
+						method: "post",
+						data: {
 							email: this.$data.email,
 							full_name: this.$data.full_name,
 							password: this.$data.password,
@@ -163,7 +164,7 @@
 						text: "Ура! Регситрация на нашем сервисе прошла успешно, теперь вам доступен весь наш функционал",
 					});
 				} catch (e) {
-					switch (e.response.body.data.code) {
+					switch (e.response.data.data.code) {
 						case 2:
 							this.$store.dispatch("NotifyErr", {
 								text: "Пожалуйста, убедитесь в коррекности введенных данных",
@@ -176,7 +177,7 @@
 							break;
 						default:
 							this.$store.dispatch("NotifyErr", {
-								text: e.response.body.data.description,
+								text: e.response.data.data.description,
 							});
 					}
 				}
